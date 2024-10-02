@@ -21,7 +21,7 @@ This Java application simulates a Mars Rover navigating a grid-based terrain. Th
    ```
 2. Run the MarsRoverSimulation class:
    ```
-   java MarsRoverSimulation
+   java Mars_Rover
    ```
 3. Follow the prompts to input:
    - Grid dimensions
