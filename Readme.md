@@ -1,6 +1,6 @@
 # Ei.Study Assignment Submission
 
-This repository contains the assignment submission for the EI.Study placement process.
+This repository contains the assignment submission for the Ei.Study placement process.
 
 ## Student Information
 
