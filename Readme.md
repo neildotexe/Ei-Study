@@ -1,4 +1,4 @@
-# EI.Study Assignment Submission
+# Ei.Study Assignment Submission
 
 This repository contains the assignment submission for the EI.Study placement process.
 
