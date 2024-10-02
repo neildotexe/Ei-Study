@@ -179,61 +179,92 @@ public class Mars_Rover {
     private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        Grid grid = createGrid();
-        Rover rover = createRover(grid);
-        addObstacles(grid);
-        String commandSequence = getCommands();
+        try {
+            Grid grid = createGrid();
+            Rover rover = createRover(grid);
+            addObstacles(grid);
+            String commandSequence = getCommands();
 
-        Map<Character, Command> commands = new HashMap<>();
-        commands.put('M', new MoveCommand());
-        commands.put('L', new TurnLeftCommand());
-        commands.put('R', new TurnRightCommand());
+            Map<Character, Command> commands = new HashMap<>();
+            commands.put('M', new MoveCommand());
+            commands.put('L', new TurnLeftCommand());
+            commands.put('R', new TurnRightCommand());
 
-        System.out.println("Initial " + rover.getStatus());
+            System.out.println("Initial " + rover.getStatus());
 
-        for (char c : commandSequence.toCharArray()) {
-            Command command = commands.get(c);
-            if (command != null) {
-                command.execute(rover);
-                System.out.println("After '" + c + "': " + rover.getStatus());
+            for (char c : commandSequence.toCharArray()) {
+                try {
+                    Command command = Optional.ofNullable(commands.get(c))
+                        .orElseThrow(() -> new IllegalArgumentException("Invalid command: " + c));
+                    command.execute(rover);
+                    System.out.println("After '" + c + "': " + rover.getStatus());
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Warning: " + e.getMessage());
+                }
             }
-        }
 
-        System.out.println("Final " + rover.getStatus());
+            System.out.println("Final " + rover.getStatus());
+        } catch (Exception e) {
+            System.out.println("An error occurred during simulation: " + e.getMessage());
+        }
     }
 
     private static Grid createGrid() {
-        System.out.print("Enter grid width: ");
-        int width = scanner.nextInt();
-        System.out.print("Enter grid height: ");
-        int height = scanner.nextInt();
+        int width = getValidInput("Enter grid width: ", 1, 100);
+        int height = getValidInput("Enter grid height: ", 1, 100);
         return new Grid(width, height);
     }
 
     private static Rover createRover(Grid grid) {
-        System.out.print("Enter rover's starting X coordinate: ");
-        int x = scanner.nextInt();
-        System.out.print("Enter rover's starting Y coordinate: ");
-        int y = scanner.nextInt();
-        System.out.print("Enter rover's starting direction (N/E/S/W): ");
-        Direction direction = Direction.valueOf(scanner.next().toUpperCase());
+        int x = getValidInput("Enter rover's starting X coordinate: ", 0, grid.getWidth() - 1);
+        int y = getValidInput("Enter rover's starting Y coordinate: ", 0, grid.getHeight() - 1);
+        Direction direction = getValidDirection();
         return new Rover(x, y, direction, grid);
     }
 
     private static void addObstacles(Grid grid) {
-        System.out.print("Enter number of obstacles: ");
-        int numObstacles = scanner.nextInt();
+        int numObstacles = getValidInput("Enter number of obstacles: ", 0, grid.getWidth() * grid.getHeight());
         for (int i = 0; i < numObstacles; i++) {
-            System.out.print("Enter obstacle " + (i + 1) + " X coordinate: ");
-            int x = scanner.nextInt();
-            System.out.print("Enter obstacle " + (i + 1) + " Y coordinate: ");
-            int y = scanner.nextInt();
+            int x = getValidInput("Enter obstacle " + (i + 1) + " X coordinate: ", 0, grid.getWidth() - 1);
+            int y = getValidInput("Enter obstacle " + (i + 1) + " Y coordinate: ", 0, grid.getHeight() - 1);
             grid.addObstacle(x, y);
         }
     }
 
     private static String getCommands() {
         System.out.print("Enter command sequence (M for move, L for left, R for right): ");
-        return scanner.next().toUpperCase();
+        String commands = scanner.next().toUpperCase();
+        if (!commands.matches("[MLR]+")) {
+            throw new IllegalArgumentException("Invalid command sequence. Use only M, L, or R.");
+        }
+        return commands;
+    }
+
+    private static int getValidInput(String prompt, int min, int max) {
+        while (true) {
+            try {
+                System.out.print(prompt);
+                int value = Integer.parseInt(scanner.next());
+                if (value < min || value > max) {
+                    throw new IllegalArgumentException("Input must be between " + min + " and " + max);
+                }
+                return value;
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number.");
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    private static Direction getValidDirection() {
+        while (true) {
+            try {
+                System.out.print("Enter rover's starting direction (N/E/S/W): ");
+                return Direction.valueOf(scanner.next().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid direction. Please enter N, E, S, or W.");
+            }
+        }
     }
 }
